@@ -83,38 +83,7 @@ void mykill(int pid) {
 
 
 void exec(char *input) {
-	int i,t,status;
-	char *args[10];
-	char *temp;
-	struct node *p;
-
-	for (i = 0; i < 10; i++)
-	{
-		args[i]=(char *)malloc(10*sizeof(char));
-	}
-
-	strcpy(args[0],strtok(input,"(,"));
-	for (i=1; (temp=strtok(NULL,",)"))!=NULL; i++) 
-		strcpy(args[i],temp);
-	printf("\n");
-	if (strcmp(args[i-1],"&")==0)
-	{
-		args[i-1]=NULL;
-	}
-	else
-		args[i]=NULL;
-	if ((t=fork())==0)
-	{
-		execv(args[0],args);
-	}
-	enqueue(t,args[0],&pid_list);
-	if (args[i-1]!=NULL)
-	{
-		fg_pid=t;
-		while(fg_pid!=0 && fg_suspended!=1)
-			pause();
-	}
-
+	schedule_task(input, &pid_list,&fg_pid,&fg_suspended);
 }
 
 
@@ -189,7 +158,7 @@ int main(int argc, char const *argv[]) {
 		else if (strcmp(input[0],"help")==0 && argnum==1) helpcmd(input[argnum]);
 		else if (strcmp(input[0],"ps")==0 && argnum==0) ps();
 		else if (strcmp(input[0],"kill")==0 && argnum==1) mykill(atoi(input[1]));
-		else if (strcmp(input[0],"sch")==0 && (check_sch_argnum(input[1],input[2],argnum)>0)) set_scheduling(argv);
+		else if (strcmp(input[0],"sch")==0 && (check_sch_argnum(input[1],input[2],argnum)>0)) set_sch_type(argv);
 		else if (strcmp(input[0],"exec")==0 && argnum!=0) 
 			for (i=1; i<=argnum; i++) exec(input[i]);
 		else if (strcmp(input[0],"exit")==0 && argnum==0) myexit();
