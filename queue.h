@@ -1,3 +1,6 @@
+#ifndef QUEUE_H_
+#define QUEUE_H_
+
 struct node {				
        int pid;
 	     char *name;
@@ -71,4 +74,4 @@ void delete(struct queue *q, int key)
 
 
 
-
+#endif /* QUEUE_H_ */

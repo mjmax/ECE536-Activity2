@@ -7,6 +7,7 @@
 #include <string.h>
 #include <sys/resource.h>
 #include "queue.h"
+#include "scheduler.h"
 
 
 int fg_pid = 0;
@@ -17,7 +18,7 @@ struct queue pid_list;
 void help() {
 	printf("This is manual page\n");
 	printf("This shell supports the following commands:\n");
-	printf("\tver\n\texec\n\tps\n\tkill\n\thelp\n\texit\n");
+	printf("\tver\n\texec\n\tps\n\tkill\n\tsch\n\thelp\n\texit\n");
 	printf("For more details please type 'help command'\n");
 }
 
@@ -40,6 +41,13 @@ void helpcmd(char *cmd) {
 	{
 		printf("\nkill pid:\tEnds the process with the given pid\n");
 	}
+        else if(strcmp(cmd,"sch")==0)
+        {
+                printf("\nsch type queue timequntom \nChanges the scheduling policy of the processes run in the OS\nScheduling policies supported\n");
+		printf("\tFirst Come First Serve(FCFS)(default)\n\tRound Robbin(RR)\n\tMulti Level Feedback Queue(MFQ)\n\tShortest Job First(SJF)\n");
+		printf("\nFollowing is the prototype command for every sheduling type\n");
+		printf(" (FCFS)\t=>sch fcfs\n (RR)\t=>sch rr timeqt\n (MFQ)\t=>sch mfq queue timeqt1 timeqt2 timeqt3 ...\n (SJF)\t=>sch sjf\n");
+        }
 	else if (strcmp(cmd,"help")==0)
 	{
 		printf("\nhelp:\tYou should know this command by now\n");
@@ -181,10 +189,11 @@ int main(int argc, char const *argv[]) {
 		else if (strcmp(input[0],"help")==0 && argnum==1) helpcmd(input[argnum]);
 		else if (strcmp(input[0],"ps")==0 && argnum==0) ps();
 		else if (strcmp(input[0],"kill")==0 && argnum==1) mykill(atoi(input[1]));
+		else if (strcmp(input[0],"sch")==0 && (check_sch_argnum(input[1],input[2],argnum)>0)) set_scheduling(argv);
 		else if (strcmp(input[0],"exec")==0 && argnum!=0) 
 			for (i=1; i<=argnum; i++) exec(input[i]);
 		else if (strcmp(input[0],"exit")==0 && argnum==0) myexit();
-	    else printf("No such command. Check help for help.\n");
+	    else printf(" No such command or check input arguments. Check help for more detail(help).\n");
 	}
 
 }
