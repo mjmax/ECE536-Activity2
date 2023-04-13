@@ -3,7 +3,7 @@
 
 struct node {				
        int pid;
-	     char *name;
+	char *name;
        struct node *next;
 	
 };

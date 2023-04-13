@@ -14,6 +14,7 @@ int fg_pid = 0;
 int fg_suspended = 0;
 int run = 1;
 struct queue pid_list;
+struct schdetail schd;
 
 void help() {
 	printf("This is manual page\n");
@@ -82,8 +83,8 @@ void mykill(int pid) {
 }
 
 
-void exec(char *input) {
-	schedule_task(input, &pid_list,&fg_pid,&fg_suspended);
+void exec(char input[][30],int argnum) {
+	schedule_task(input,argnum,&pid_list,&schd,&fg_pid,&fg_suspended);
 }
 
 
@@ -141,6 +142,7 @@ int main(int argc, char const *argv[]) {
 	pid_list.head=NULL;
 	pid_list.tail=NULL;
 	enqueue(getppid(),"NEW SHELL",&pid_list);
+	set_default_scheduler(&schd);
 
 	signal(SIGCHLD,childdead);
 	signal(SIGTSTP,susp);
@@ -158,9 +160,8 @@ int main(int argc, char const *argv[]) {
 		else if (strcmp(input[0],"help")==0 && argnum==1) helpcmd(input[argnum]);
 		else if (strcmp(input[0],"ps")==0 && argnum==0) ps();
 		else if (strcmp(input[0],"kill")==0 && argnum==1) mykill(atoi(input[1]));
-		else if (strcmp(input[0],"sch")==0 && (check_sch_argnum(input[1],input[2],argnum)>0)) set_sch_type(argv);
-		else if (strcmp(input[0],"exec")==0 && argnum!=0) 
-			for (i=1; i<=argnum; i++) exec(input[i]);
+		else if (strcmp(input[0],"sch")==0 && (check_sch_argnum(input[1],input[2],argnum)>0)) set_sch_type(input,&schd);
+		else if (strcmp(input[0],"exec")==0 && argnum!=0) exec(input,argnum);
 		else if (strcmp(input[0],"exit")==0 && argnum==0) myexit();
 	    else printf(" No such command or check input arguments. Check help for more detail(help).\n");
 	}
