@@ -9,6 +9,61 @@
 
 int schtype = FCFS;	//default scheduling type
 
+void schreqenqueue(int item, int type, int pcount, struct schqueue *q) {		
+     struct schreqnode *p;						
+
+     p= (struct schreqnode *)malloc(sizeof(struct schreqnode));
+     p->reqid=item;
+     p->reqtype=type;
+     p->pcount=pcount;	
+     p->next=NULL;
+     if (q->head==NULL) q->head=q->tail=p;
+     else {
+          q->tail->next=p;
+          q->tail=p;
+     }
+
+}
+
+
+int schreqdequeue(struct schqueue *q) {						
+    struct schreqnode *p;
+    int d;
+    
+    d= q->head->reqid;   
+    p=q->head;
+    q->head=q->head->next;
+    free(p);
+    return d;
+}
+
+
+void schreqdelete(struct schqueue *q, int key) {
+     if (q->head->reqid == key)
+     {
+        struct schreqnode *p = q->head;
+        q->head = q->head->next;
+        free(p);
+        return;
+    }
+    struct schreqnode *current = q->head->next;
+    struct schreqnode *previous = q->head;
+    while (current != NULL && previous != NULL)
+    {
+      if (current->reqid == key)
+      {
+        struct schreqnode *tmp = current;
+        if (current == q->tail)
+          q->tail = previous;
+        previous->next = current->next;
+        free(tmp);
+        return;
+      }
+      previous = current;
+      current = current->next;
+    }
+    return;  
+  }
 
 int check_sch_argnum(char *schtype, char *queuenum,int argnum) {
         int status = -1;
