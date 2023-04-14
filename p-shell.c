@@ -36,7 +36,7 @@ int main (int argc, char *argv[]) {
 	signal(SIGUSR1,pauseprosess);
 	signal(SIGCONT,contprocess);
 	//setpriority(PRIO_PROCESS,0,-20);
-	pause();
+	//pause();
 	
 	num =atoi(argv[1]);
 	sltime = 1000*atoi(argv[2]);
