@@ -19,10 +19,12 @@ void enqueue(int item, char *s, struct queue *q) {
 }
 
 
-int dequeue(struct queue *q) {		
+int dequeue(struct queue *q, struct dequeuedet *det) {		
     int item;				
     struct node *p;
     
+    det->pid=q->head->pid;
+    det->name=q->head->name;
     item=q->head->pid;
     p=q->head;
     q->head=q->head->next;

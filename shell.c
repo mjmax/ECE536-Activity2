@@ -114,7 +114,8 @@ void childdead(int signum) {
 	
 	dead_pid=wait(&status);
 	printf("The child %d is dead\n",dead_pid );
-
+	setchilddead();
+	
 	delete(&pid_list,dead_pid);
 	printf("\n");
 	if (dead_pid==fg_pid)
@@ -141,6 +142,8 @@ int main(int argc, char const *argv[]) {
 
 	pid_list.head=NULL;
 	pid_list.tail=NULL;
+	schd.schtype=-1;
+	//signal(SIGCHLD, term_child);
 	enqueue(getppid(),"NEW SHELL",&pid_list);
 	set_default_scheduler(&schd);
 

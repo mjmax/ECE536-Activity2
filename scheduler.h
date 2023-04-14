@@ -34,6 +34,8 @@ int check_sch_argnum(char *schtype, char *queuenum,int argnum);
 int set_default_scheduler(struct schdetail *d);
 int set_sch_type(char input[][30], struct schdetail *d);
 void fcfs(char *input,struct queue *pid_list, struct schdetail *d,int *fg_pid,int *fg_suspended);
+void setchilddead(void);
+void loadrrqueue(char *input, struct queue *pid_list, struct schdetail *d,int *fg_pid,int *fg_suspended);
 void rr(char input[][30], int argnum,struct queue *pid_list, struct schdetail *d,int *fg_pid,int *fg_suspended);
 void mfq(char input[][30], int argnum,struct queue *pid_list, struct schdetail *d,int *fg_pid,int *fg_suspended);
 int compare(const void *a, const void *b);
