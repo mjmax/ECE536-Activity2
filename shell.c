@@ -114,8 +114,8 @@ void childdead(int signum) {
 	
 	dead_pid=wait(&status);
 	printf("The child %d is dead\n",dead_pid );
-	setchilddead();
-	
+	setchilddead(dead_pid);
+
 	delete(&pid_list,dead_pid);
 	printf("\n");
 	if (dead_pid==fg_pid)

@@ -13,6 +13,7 @@ struct dequeuedet ddet;
 int defschtype = FCFS;	//default scheduling type
 int schchangereq = 0;   //how many times scheduler change request to serve(0 is default)
 int child_dead = 0;
+int gdead_pid = 0;
 
 void schreqenqueue(int item, int type, struct schqueue *q) {		
      struct schreqnode *p;						
@@ -126,7 +127,7 @@ int set_sch_type(char input[][30], struct schdetail *d) {
                 for(i=0;i<d->queuecount;i++){
                         d->timequantum[i] = 1000*atoi(input[i+3]);
                 }
-                printf("test pass\ntype : %d\nqueue count : %d",d->schtype,d->queuecount);
+                printf("test pass\ntype : %d\nqueue count : %d\n",d->schtype,d->queuecount);
                 for(i=0; i < d->queuecount; i++)
                         printf("timequntom : %d\n",d->timequantum[i]/1000);
                 status = 1;
@@ -181,8 +182,9 @@ void fcfs(char *input, struct queue *pid_list, struct schdetail *d,int *fg_pid,i
 	}
 }
 
-void setchilddead(void){
+void setchilddead(int dpid){
 	child_dead = 1;
+        gdead_pid = dpid;
 }
 
 void loadrrqueue(char *input, struct queue *pid_list, struct schdetail *d,int *fg_pid,int *fg_suspended)
@@ -226,7 +228,7 @@ void rr(char input[][30], int argnum,struct queue *pid_list, struct schdetail *d
                 loadrrqueue(input[i],pid_list,d,fg_pid,fg_suspended);
         }
         
-  	sleep(1);
+  	//sleep(1);
 
 	while(pid_list->head!=NULL)
 	{
@@ -273,7 +275,63 @@ void rr(char input[][30], int argnum,struct queue *pid_list, struct schdetail *d
 
 void mfq(char input[][30], int argnum,struct queue *pid_list, struct schdetail *d,int *fg_pid,int *fg_suspended)
 {
+        int i, pidcount = 0;
+        struct node *p, *q;
+        //struct queue mfq[MAXSCHQUEUE][] = {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
+        struct queue mfq[MAXSCHQUEUE] = {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
+        int parentpid = getppid();
+        for (i = 1; i < argnum + 1; i++) {
+                printf("%s\n", input[i]);
+                loadrrqueue(input[i],pid_list,d,fg_pid,fg_suspended);
+        }
+        
 
+        for (p=pid_list->head; p!=NULL; p=p->next)
+        {
+                //printf("pid: %d name: %s\n",p->pid,p->name);
+                if(p->pid != parentpid)
+                {
+                        enqueue(p->pid,p->name,&mfq[0]);
+                }
+        }        
+        printf("Processe queued to mfq[0]\n");
+        for (p=mfq[0].head; p!=NULL; p=p->next)
+        {
+                printf("pid: %d name: %s\n",p->pid,p->name);
+        }
+
+        //sleep(5);
+
+
+        for(i=0;i<d->queuecount;i++)
+        {
+                p = mfq[i].head;
+                while(p!=NULL)
+                {
+                        printf("Alive process pid: %d in mfq number: %d\n",p->pid,i);
+                        kill(p->pid,SIGCONT);
+                        usleep(d->timequantum[i]);
+                        if (child_dead==0)
+                        {
+                                kill(p->pid,SIGUSR1);
+                                usleep(1000);
+                                dequeue(&mfq[i], &ddet);
+                                p = mfq[i].head;
+                                if(i == d->queuecount-1)
+                                        enqueue(ddet.pid,ddet.name,&mfq[i]);
+                                else
+                                        enqueue(ddet.pid,ddet.name,&mfq[i+1]);
+                        }
+                        else
+                        {
+                                printf("A child is dead\n");
+                                //dequeue(&mfq[i], &ddet);
+                                delete(&mfq[i],gdead_pid);
+                                p = mfq[i].head;
+                                child_dead=0;
+                        }
+                }
+        }   
 }
 
 int compare(const void *a, const void *b) {
