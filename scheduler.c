@@ -275,61 +275,72 @@ void rr(char input[][30], int argnum,struct queue *pid_list, struct schdetail *d
 
 void mfq(char input[][30], int argnum,struct queue *pid_list, struct schdetail *d,int *fg_pid,int *fg_suspended)
 {
-        int i, pidcount = 0;
-        struct node *p, *q;
-        //struct queue mfq[MAXSCHQUEUE][] = {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
-        struct queue mfq[MAXSCHQUEUE] = {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
+        int i, pidcount = 0, finishmfq=0;
+        struct node *p;
         int parentpid = getppid();
         for (i = 1; i < argnum + 1; i++) {
                 printf("%s\n", input[i]);
                 loadrrqueue(input[i],pid_list,d,fg_pid,fg_suspended);
         }
+        dequeue(pid_list, &ddet);
+        enqueue(ddet.pid,ddet.name,pid_list);
         
+  	//sleep(1);
 
-        for (p=pid_list->head; p!=NULL; p=p->next)
+        for(i = 0;i<d->queuecount;i++)
         {
-                //printf("pid: %d name: %s\n",p->pid,p->name);
-                if(p->pid != parentpid)
+                while(pid_list->head!=NULL)
                 {
-                        enqueue(p->pid,p->name,&mfq[0]);
-                }
-        }        
-        printf("Processe queued to mfq[0]\n");
-        for (p=mfq[0].head; p!=NULL; p=p->next)
-        {
-                printf("pid: %d name: %s\n",p->pid,p->name);
-        }
-
-        //sleep(5);
-
-
-        for(i=0;i<d->queuecount;i++)
-        {
-                p = mfq[i].head;
-                while(p!=NULL)
-                {
-                        printf("Alive process pid: %d in mfq number: %d\n",p->pid,i);
-                        kill(p->pid,SIGCONT);
-                        usleep(d->timequantum[i]);
-                        if (child_dead==0)
+                        if(pid_list->head->pid != parentpid)
                         {
-                                kill(p->pid,SIGUSR1);
-                                usleep(1000);
-                                dequeue(&mfq[i], &ddet);
-                                p = mfq[i].head;
-                                if(i == d->queuecount-1)
-                                        enqueue(ddet.pid,ddet.name,&mfq[i]);
+                                kill(pid_list->head->pid,SIGCONT);
+                                usleep(d->timequantum[i]);
+                                if (child_dead==0)
+                                {
+                                        kill(pid_list->head->pid,SIGUSR1);
+                                        usleep(1000);
+                                        dequeue(pid_list, &ddet);
+                                        enqueue(ddet.pid,ddet.name,pid_list);
+                                }
                                 else
-                                        enqueue(ddet.pid,ddet.name,&mfq[i+1]);
+                                {
+                                        printf("A child is dead\n");
+                                        //dequeue(pid_list, &ddet);
+                                        child_dead=0;
+                                }
                         }
                         else
-                        {
-                                printf("A child is dead\n");
-                                //dequeue(&mfq[i], &ddet);
-                                delete(&mfq[i],gdead_pid);
-                                p = mfq[i].head;
-                                child_dead=0;
+                        {               
+                                
+                                for (p=pid_list->head; p!=NULL; p=p->next)
+                                {
+                                        pidcount = pidcount + 1;
+                                }
+                                if (pidcount==1)
+                                {
+                                                printf("All children are dead\n");
+                                                child_dead=0;
+                                                finishmfq=1;
+                                                break;
+                                }
+                                else
+                                {
+                                        pidcount=0;
+                                        usleep(1000);
+                                        dequeue(pid_list, &ddet);
+                                        enqueue(ddet.pid,ddet.name,pid_list);
+                                        printf("qwitch queue from :%d to :%d\n",i,i+1);
+                                        if(i!=d->queuecount-1)
+                                        {
+                                                break;
+                                        }
+                                }
+                                
                         }
+                }
+                if(finishmfq==1)
+                {
+                        break;
                 }
         }   
 }
