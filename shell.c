@@ -9,6 +9,7 @@
 #include "queue.h"
 #include "scheduler.h"
 
+#define SHELL_VER "1.00" 
 
 int fg_pid = 0;
 int fg_suspended = 0;
