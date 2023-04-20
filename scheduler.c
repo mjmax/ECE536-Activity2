@@ -108,7 +108,8 @@ int set_sch_type(char input[][30], struct schdetail *d) {
                 d->schtype = FCFS;
                 d->queuecount = 0;
                 d->schtypechnage = 1;
-                printf("test pass\ntype : %d\nqueue count : %d\n",d->schtype,d->queuecount);
+                printf("scheduler changed successful\n");
+                //printf("scheduler changed successful\ntype : %d\nqueue count : %d\n",d->schtype,d->queuecount);
                 status = 1;
         }
         else if(strcmp(input[1],"rr")==0){
@@ -116,7 +117,8 @@ int set_sch_type(char input[][30], struct schdetail *d) {
                 d->queuecount = 1;
                 d->schtypechnage = 1;
                 d->timequantum[0] = 1000*atoi(input[2]);
-                printf("test pass\ntype : %d\nqueue count : %d\ntimequntom : %d\n",d->schtype,d->queuecount,d->timequantum[0]/1000);
+                printf("scheduler changed successful\n");
+                //printf("scheduler changed successful\ntype : %d\nqueue count : %d\ntimequntom : %d\n",d->schtype,d->queuecount,d->timequantum[0]/1000);
                 status = 1;
         }
         else if(strcmp(input[1],"mfq")==0){
@@ -127,16 +129,18 @@ int set_sch_type(char input[][30], struct schdetail *d) {
                 for(i=0;i<d->queuecount;i++){
                         d->timequantum[i] = 1000*atoi(input[i+3]);
                 }
-                printf("test pass\ntype : %d\nqueue count : %d\n",d->schtype,d->queuecount);
-                for(i=0; i < d->queuecount; i++)
-                        printf("timequntom : %d\n",d->timequantum[i]/1000);
+                printf("scheduler changed successful\n");
+                //printf("scheduler changed successful\ntype : %d\nqueue count : %d\n",d->schtype,d->queuecount);
+                //for(i=0; i < d->queuecount; i++)
+                //        printf("timequntom : %d\n",d->timequantum[i]/1000);
                 status = 1;
         }
         else if(strcmp(input[1],"sjf")==0){
                 d->schtype = SJF;
                 d->queuecount = 0;
                 d->schtypechnage = 1;
-                printf("test pass\ntype : %d\nqueue count : %d\n",d->schtype,d->queuecount);
+                printf("scheduler changed successful\n");
+                //printf("scheduler changed successful\ntype : %d\nqueue count : %d\n",d->schtype,d->queuecount);
                 status = 1;
         }
         else {
@@ -224,7 +228,7 @@ void rr(char input[][30], int argnum,struct queue *pid_list, struct schdetail *d
         struct node *p;
         int parentpid = getppid();
         for (i = 1; i < argnum + 1; i++) {
-                printf("%s\n", input[i]);
+                //printf("%s\n", input[i]);
                 loadrrqueue(input[i],pid_list,d,fg_pid,fg_suspended);
         }
         
@@ -279,7 +283,7 @@ void mfq(char input[][30], int argnum,struct queue *pid_list, struct schdetail *
         struct node *p;
         int parentpid = getppid();
         for (i = 1; i < argnum + 1; i++) {
-                printf("%s\n", input[i]);
+                //printf("%s\n", input[i]);
                 loadrrqueue(input[i],pid_list,d,fg_pid,fg_suspended);
         }
         dequeue(pid_list, &ddet);
@@ -329,7 +333,7 @@ void mfq(char input[][30], int argnum,struct queue *pid_list, struct schdetail *
                                         usleep(1000);
                                         dequeue(pid_list, &ddet);
                                         enqueue(ddet.pid,ddet.name,pid_list);
-                                        printf("qwitch queue from :%d to :%d\n",i,i+1);
+                                        //printf("switch queue from :%d to :%d\n",i,i+1);
                                         if(i!=d->queuecount-1)
                                         {
                                                 break;
@@ -381,7 +385,7 @@ void sjf(char input[][30], int argnum,struct queue *pid_list, struct schdetail *
         }
 
         qsort(ptrarr + 1, argnum, sizeof(char *), compare);
-        printf("Number of arguments: %d\n", argnum);
+        //printf("Number of arguments: %d\n", argnum);
 
         if (order == ODR_DES) {
                 int i, j;
@@ -395,7 +399,7 @@ void sjf(char input[][30], int argnum,struct queue *pid_list, struct schdetail *
         }
 
         for (i = 1; i < argnum + 1; i++) {
-                printf("%s\n", ptrarr[i]);
+                //printf("%s\n", ptrarr[i]);
                 fcfs(ptrarr[i],pid_list,d,fg_pid,fg_suspended);
         }
 }
@@ -409,7 +413,7 @@ int schedule_task(char input[][30], int argnum, struct queue *pid_list, struct s
                 case FCFS:
                         for(i=1; i<=argnum; i++)
                         {
-                                printf("pocess name: %s\n", input[i]);
+                                //printf("pocess name: %s\n", input[i]);
                                 fcfs(input[i],pid_list,d,fg_pid,fg_suspended);
                         }
                         break;

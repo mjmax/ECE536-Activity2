@@ -7,7 +7,7 @@
 #include <sys/resource.h>
 
 void cont (int sig_num) {
-     printf("recived the continue signal\n");
+    printf("received the continue signal\n");
 }
 
 void stop (int sig_num) {
@@ -20,7 +20,7 @@ void contprocess(int sig_num){
 }
 
 void pauseprosess(int sig_num){
-	printf("recived the pausing signal\n");
+	printf("received the pausing signal\n");
 	signal(SIGUSR1,pauseprosess);
 	pause();
 }
